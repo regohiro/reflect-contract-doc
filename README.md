@@ -3,5 +3,5 @@
 Published here: https://reflect-technical-whitepaper.netlify.app/  
 PDF version: (coming soon)
 
-Any grammar edit or math fix is welcome!  
+Any grammar or math edit is welcome!  
 (Make pull request)
