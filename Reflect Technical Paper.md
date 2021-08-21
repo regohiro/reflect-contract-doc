@@ -105,7 +105,7 @@ $\textrm{tFee}$ is 10% of $\textrm{tAmount}$, therefore $\forall \textrm{tFee} \
 
 ## Avoiding non-stakers from equation
 
-It is essential to keep non-stakers out of the equation when calculating rate. Instead of using equation from (3) that counts all users, rate is calculated as follows: 
+It is essential to keep non-stakers out of the equation when calculating rate. Instead of equation (3), which includes non-stakers, rate is calculated as follows: 
 
 $$
 \begin{align}
@@ -113,7 +113,7 @@ $$
 \end{align}
 $$
 
-Dev note: Since this operation involves a loop, non-stakers should be no more than 10 and is recommended to store the summation parts in storage variables. 
+Dev note: Since this operation involves a loop, non-stakers should be no more than 10 and is recommended to store the summation part in storage variables. 
 
 ## Calculating balance
 
