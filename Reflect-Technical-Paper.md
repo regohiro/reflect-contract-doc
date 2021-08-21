@@ -1,7 +1,29 @@
-
-  
-<style>  
-.katex { font-size: 1em !important; }
+<style> 
+    .katex { 
+      font-size: 1.2em !important; 
+    }
+    h1::after, h2::after {
+      content: "";
+      display: block;
+      position: relative;
+      top: .33em;
+      border-bottom: 0.1rem solid hsla(0,0%,40%,.5);
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin: 1em 0;
+      line-height: 1.33;
+    }
+    h1 {
+      margin-top: 0.5em;
+      margin-bottom: 1.3em;
+    }
+    h1::after{
+      content: "";
+      display: none;
+      position: relative;
+      top: .33em;
+      border-bottom: 0.1rem solid hsla(0,0%,40%,.5); 
+    }
 </style>
 
 # A Technical Whitepaper for Reflect Contracts
