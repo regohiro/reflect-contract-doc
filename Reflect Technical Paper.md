@@ -1,4 +1,5 @@
 
+  
 <style>  
 .katex { font-size: 1em !important; }
 </style>
@@ -7,19 +8,19 @@
 
 ## Abstract
 
-The goal is to create a token that will distribute fees to holders when someone makes a transaction. One way is to simply add reward to users balance, one by one, using a loop. However,  such transaction could easily fail due to network gas limit. A different method is to create a deflationary mechanism so that tokens one holds are worth more. 
+The goal is to create a token that will distribute fees to holders when a user makes a transaction. One way is to individually add the reward to all user's balance. However, such transaction could easily fail due to network gas limit. A different method is to create a deflationary mechanism so that tokens one holds are worth more. 
 
 ## Introduction 
 
 Over the couple of month, auto-staking (auto-farming) tokens have become a new trend in the DeFi space. Some call this the DeFi 2.0 token. 
 
-In traditional farms, users have to stake their tokens or manually. For some users, this feels like a two-step process after supplying liquidity to pools or swapping to native token. Moreover, the staked token will end up in a smart contract, and some users fear of getting rug pulled. 
+In traditional farms, users have to stake their tokens manually. For some people, this feels like a two-step process right after supplying liquidity to pools or swapping to native token. Moreover, users have to risk their funds since the staked tokens end up in MasterChef smart contract. 
 
-Reflect contract, or RFI contract, solve this issue by implementing an auto-staking feature built in to the token. Also, one can easily exclude users from staking to avoid whales taking all reward. However, one big difference from traditional farm is that reward comes from transaction fees and not from MasterChef minting new tokens.    
+Reflect contracts, or RFI contracts, solve this issue by implementing an auto-staking feature built in to the token. This way, users can safely store their tokens in their wallet while still earning rewards. However, one big difference is that rewards come from transaction fees, not from MasterChef minting new tokens. 
 
 ## Background 
 
-Before diving into the contract, a new concept must be introduced: t-space and r-space values, along with tTotal and rTotal. tTotal, which belongs to t-space, represents tokens in circulation or total supply of a token. On the other hand, rTotal, which belongs to r-space, is a reflected value of tTotal. The term "reflected" cannot be easily explained in words but one interpretation of rTotal is token supply in reserve. Furthermore, values in t-space can be easily converted to r-space form, and vice versa using formula (3). 
+Before diving into the contract, a new concept must be introduced: t-space and r-space values, along with tTotal and rTotal. tTotal, which belongs to t-space, represents tokens in circulation or total supply of a token. On the other hand, rTotal, which belongs to r-space, is a reflected value of tTotal. The term "reflected" cannot be easily explained in words but one interpretation of rTotal is token supply in reserve. Furthermore, values in t-space can easily be converted to r-space form, and vice versa using formula (3). 
 
 Stakers are users who earn passive income by holding native token. In contrast, non-stakers do not earn rewards. Router contracts, pair contracts, dev wallets are usually excluding from staking in order to fully reward users. 
 
@@ -41,7 +42,7 @@ $$
 \end {align*}
 $$
 
-Moreover, from the property of remainders: 
+From the property of remainders: 
 $$
 \begin {align*}
 0 \leq \mathrm {MAX}\bmod \mathrm {tTotal} < \mathrm {tTotal} 　　\\
@@ -50,7 +51,7 @@ $$
 \end {align*}
 $$
 
-Therefore, from the two equations above, $\mathrm {rTotal}$ is a multiple of $\mathrm {tTotal}$ and is between  $\mathrm {MAX} - \mathrm {tTotal}$ and  $\mathrm {MAX}$. For the value $\mathrm {MAX}$, many choose the biggest number that Solidity provides which is ~uint256(0) $\approx 10^{77}$. 
+Therefore, $\mathrm {rTotal}$ is a multiple of $\mathrm {tTotal}$ and it is between  $\mathrm {MAX} - \mathrm {tTotal}$ and  $\mathrm {MAX}$. The value $\mathrm {MAX}$ can be any number above $\mathrm {tTotal}$, and ~uint256(0) $\approx 10^{77}$ is usually the chosen value. 
 
 ### Conversion
 
@@ -71,7 +72,7 @@ Note:
 　(1) If sender is excluded from staking　　　　　(2) If recipient is excluded from staking 　
 Glossary: 
 　• tAmount: token amount that sender pays/transfers including tFee 
-　• tFee: the 10% transfer fee (note: 10% was chosen arbitrarily) 
+　• tFee: transfer fee (note: 10% was chosen arbitrarily) 
 　• tTransferAmount: tokens that will get transferred to recipient 
 　• tOwned[user]: User's balance represented in t-space (only used by non-stakers)
 　• rOwned[user]: User's balance represented in r-space 
@@ -91,7 +92,7 @@ $$
 \end{align*}
 $$
 
-Therefore, $\textrm{rTotal}$ in n-th transaction can be calculated using the following formula:
+$\textrm{rTotal}$ in n-th transaction can be calculated using the following formula:
 
 $$
 \begin{align}
@@ -99,7 +100,7 @@ $$
 \end{align}
 $$
 
-$\textrm{tFee}$ is usually around 10% of tAmount, therefore $\forall \textrm{tFee} \ll \textrm{tTotal}$. This makes tokens in r-space deflationary while maintaining $\textrm{rTotal}(\forall n) > 0$. 
+$\textrm{tFee}$ is 10% of $\textrm{tAmount}$, therefore $\forall \textrm{tFee} \ll \textrm{tTotal}$. This makes tokens in r-space deflationary while maintaining $\textrm{rTotal}(\forall n) > 0$. 
 
 
 ## Avoiding non-stakers from equation
@@ -112,7 +113,7 @@ $$
 \end{align}
 $$
 
-Dev note: Since this operation involves a loop, non-stakers should be no more than 10 and is recommended to store the summation part in storage variables. 
+Dev note: Since this operation involves a loop, non-stakers should be no more than 10 and is recommended to store the summation parts in storage variables. 
 
 ## Calculating balance
 
@@ -138,7 +139,7 @@ $$
 \end{align}
 $$
 
-By combining equation (4) and (8), one can prove that denominator will not go to 0. 
+By combining equations (4) and (8), one can prove that denominator will never go to 0. 
 $$
 \begin{align}
 \mathrm{balanceOf[user]}(n) = \frac{\textrm{tSupply}}{\prod\limits_{i=1}^{n} \left(1-\frac{\textrm{tFee}(n-i)}{\textrm{tSupply}} \right) \cdot \textrm{rSupply}(0)} \cdot \textrm{rOwned[user]}
@@ -168,22 +169,19 @@ $$
 \end{align*}
 $$ 
 
-By introducing t-space and r-space, calculating balance becomes simpler with formula (8). 
 
 ## One issue with RFI contracts
 
-RFI contracts has one fundamental issue as to re-including users into staking. The conversion rate between t-values and r-values is calculated using equation (5). There, it is excluding non-stakers out of equation in order to fully reward the stakers. However, when a user gets re-included into staking, the rate updates, thereby changing all stakers balance. Using this feature, this token can be used to rug-pull rewards from stakers by re-including a whale. 
-
-Note: By default, all users are included in staking. Re-including means to exclude from staking then include after certain period of time. 
+RFI contracts has one fundamental issue over including users into staking. The conversion rate between t-values and r-values is calculated using equation (5). Here, it is excluding non-stakers out of equation in order to fully reward the stakers. However, when a new user gets included into staking, the rate updates, thereby changing all stakers balance. Using this feature, it can be used to rug-pull rewards from stakers by including a whale. 
 
 ## Expanding the contract
 
-Some projects expanded the contract to not only reward native tokens but also reward other tokens such as such as BNB, BTCB, CAKE, etc. This is done by taking some percentage of the reward, then convert it to other token using the router contract. 
-However, this can lead to price drop since the native token will be sold every transaction. 
+Some projects have expanded the contract to not only reward native tokens but also reward other tokens such as BNB, BTCB, CAKE, etc. This is done by taking portion of the reward, then convert to the other token using the router contract.
+
+However, this can lead the token price to drop since the native token is sold in every transaction. 
 
 ## About the author
 
 Username: macroblock or REGO350
 GitHub: https://github.com/REGO350
-Contact: rego350xwb02@gmail.com 
-
+Contact: rego350xwb02@gmail.com
